@@ -1,0 +1,44 @@
+// Entirely synthetic history. No tools, files, or network requests are executed.
+export function createDemoTrace() {
+  return {
+    schemaVersion: 1,
+    id: 'demo-quarterly-review',
+    title: '季度经营分析 · 证据回溯示例',
+    origin: 'demo',
+    observability: [
+      '这是一份合成示例，不是实时会话；所有文件片段与 API 返回均为虚构数据。',
+      '仅展示已记录的工具参数与返回，不展示模型私有内部思维。',
+      '工具返回是否进入模型上下文未知；脚本内部网络与磁盘活动不可观测。'
+    ],
+    nodes: [
+      { id: 'step-1', kind: 'tool', label: '并行采集经营数据', toolName: 'run_code', start: '2026-10-30T09:00:00Z', end: '2026-10-30T09:00:04Z', status: 'success', input: null, output: '文件与 API 并行读取；API 首次失败后重试。', sourceIds: [], step: 1, turn: 1 },
+      { id: 'read-1', parentId: 'step-1', kind: 'tool', label: '读取季度经营摘要', toolName: 'read', start: '2026-10-30T09:00:00Z', end: '2026-10-30T09:00:01.200Z', status: 'success', input: { file_path: '/workspace/reports/q3-revenue.csv', offset: 1, limit: 5 }, output: '1: quarter,revenue_cny,customers\n2: Q2,1000000,250\n3: Q3,1200000,275\n4: # 示例数据，非真实业务记录', sourceIds: ['source-file'], step: 1, turn: 1 },
+      { id: 'fetch-1', parentId: 'step-1', kind: 'tool', label: '获取经营指标 · 首次请求', toolName: 'web_fetch', start: '2026-10-30T09:00:00.100Z', end: '2026-10-30T09:00:01.800Z', status: 'error', input: { url: 'https://api.example.com/v1/metrics?quarter=Q3', method: 'GET' }, output: { error: 'upstream timeout', retryable: true }, sourceIds: [], step: 1, turn: 1 },
+      { id: 'fetch-2', parentId: 'step-1', kind: 'tool', label: '获取经营指标 · 显式重试', toolName: 'web_fetch', start: '2026-10-30T09:00:02Z', end: '2026-10-30T09:00:04Z', status: 'success', input: { url: 'https://api.example.com/v1/metrics?quarter=Q3', method: 'GET' }, output: { quarter: 'Q3', revenue_cny: 1200000, customers: 275, note: '演示工具返回；未记录原始 HTTP 状态码及请求头' }, sourceIds: ['source-api'], step: 1, turn: 1 },
+      { id: 'step-2', kind: 'tool', label: '复查计算与归因', toolName: 'run_code', start: '2026-10-30T09:00:04Z', end: '2026-10-30T09:00:05Z', status: 'success', input: null, output: '收入环比增长 20%；因果解释缺少证据。', sourceIds: [], step: 2, turn: 1 },
+      { id: 'calc-1', parentId: 'step-2', kind: 'tool', label: '计算收入环比变化', toolName: 'calculator', start: '2026-10-30T09:00:04Z', end: '2026-10-30T09:00:04.600Z', status: 'success', input: { expression: '(1200000 - 1000000) / 1000000 * 100' }, output: { value: 20, unit: '%' }, sourceIds: [], step: 2, turn: 1 },
+      { id: 'check-1', parentId: 'step-2', kind: 'tool', label: '获取市场活动归因数据', toolName: 'analytics_lookup', start: '2026-10-30T09:00:04.100Z', end: null, status: 'unknown', input: { dataset: 'campaign-attribution', period: 'Q3' }, output: null, sourceIds: [], step: 2, turn: 1 }
+    ],
+    sources: [
+      { id: 'source-file', nodeId: 'read-1', kind: 'file', uri: '/workspace/reports/q3-revenue.csv', locator: '请求：offset=1, limit=5', returnedLocator: '工具返回：L1–L4', snapshot: '1: quarter,revenue_cny,customers\n2: Q2,1000000,250\n3: Q3,1200000,275\n4: # 示例数据，非真实业务记录', snapshotKind: '工具返回的文件片段（非原文件全文）', truncated: false, observation: '路径与范围来自 read 参数；只保留当时返回片段，实际磁盘访问范围未知。' },
+      { id: 'source-api', nodeId: 'fetch-2', kind: 'http', uri: 'https://api.example.com/v1/metrics?quarter=Q3', locator: 'GET /v1/metrics?quarter=Q3', returnedLocator: 'JSON Pointer: /revenue_cny, /customers', snapshot: '{\n  "quarter": "Q3",\n  "revenue_cny": 1200000,\n  "customers": 275\n}', snapshotKind: '工具返回快照，非原始 HTTP 响应', truncated: false, observation: 'URL 来自工具参数；本示例提供显式返回，未记录原始 HTTP 状态码、响应头或服务端日志。' }
+    ],
+    evidence: [
+      { id: 'e-file-revenue', sourceId: 'source-file', nodeId: 'read-1', locator: 'L2–L3', excerpt: 'Q2,1000000,250\nQ3,1200000,275', attribution: 'explicit', verification: 'unverified' },
+      { id: 'e-api-revenue', sourceId: 'source-api', nodeId: 'fetch-2', locator: 'JSON Pointer: /revenue_cny', excerpt: '1200000', attribution: 'explicit', verification: 'unverified' },
+      { id: 'e-calculation', nodeId: 'calc-1', locator: 'output.value', excerpt: '20 %', attribution: 'explicit', verification: 'unverified' }
+    ],
+    claims: [
+      { id: 'claim-growth', text: 'Q3 收入较 Q2 增长 20%。', evidenceIds: ['e-file-revenue', 'e-api-revenue', 'e-calculation'], limitations: ['仅对合成示例中的两个季度进行计算。', '文件与 API 数字一致不等于来源独立或数据真实；未执行语义核验。'], verification: 'unverified' },
+      { id: 'claim-causality', text: '收入增长主要由本季度市场活动驱动。', evidenceIds: ['e-campaign-missing'], limitations: ['归因工具缺少返回；所引用的归因证据未提供。', '收入同期增长不能证明市场活动的因果作用。'], verification: 'unverified' }
+    ],
+    replies: [
+      { id: 'reply-progress', kind: 'assistant', status: 'recorded', text: '已读取季度经营摘要并查询指标接口。两份记录均显示 Q3 收入为 120 万元。接下来检查环比和归因数据。', turn: 1, step: 1, time: '2026-10-30T09:00:04Z', nodeIds: ['step-1', 'read-1', 'fetch-1', 'fetch-2'], claimIds: [] },
+      { id: 'reply-final', kind: 'assistant', status: 'recorded', text: 'Q3 收入较 Q2 增长 20%（100 万元 → 120 万元）。文件与接口数值一致，计算结果为 20%。\n\n“增长主要由市场活动驱动”尚无充分证据：归因查询未记录返回，不能据同期增长建立因果关系。请核查归因数据后再作判断。', turn: 1, step: 2, time: '2026-10-30T09:00:05Z', nodeIds: ['step-1', 'read-1', 'fetch-1', 'fetch-2', 'step-2', 'calc-1', 'check-1'], claimIds: ['claim-growth', 'claim-causality'] }
+    ],
+    warnings: ['analytics_lookup 仅记录开始，缺少返回；无法确认执行是否结束。', '结论 claim-causality 引用了不存在的证据 e-campaign-missing。', '全部结论均为显式声明，未进行语义或因果核验。']
+  };
+}
+
+export const demoTrace = createDemoTrace();
+export default createDemoTrace;

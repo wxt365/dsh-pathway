@@ -1,0 +1,55 @@
+{
+  "name": "dsh-pathway",
+  "version": "0.5.1",
+  "icon": "icon.svg",
+  "description": "DeepSeek Harness 执行链路与证据溯源插件",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22",
+    "dsh": "0.2.1-rc.5"
+  },
+  "main": "./src/host.js",
+  "exports": {
+    ".": "./src/host.js",
+    "./client": "./dist/client.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "src",
+    "dist",
+    "locale",
+    "icon.svg",
+    "cordis.bundle.yml",
+    "docs",
+    "scripts",
+    "test",
+    "examples",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.bundle.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/core.test.js test/host.test.js test/plan.test.js test/transfer.test.js test/registration.test.js test/registration-tools.test.js test/history-scope.test.js test/multi-source.test.js test/scope.test.js",
+    "test:integration": "npm run build && node --test test/integration.test.js",
+    "test:browser": "npm run build && node --test test/browser.test.js test/host-browser.test.js",
+    "check": "npm test && npm run test:integration"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "esbuild": "^0.28.2"
+  }
+}

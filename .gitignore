@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.harness-reference/
+.harness-reference-current/
+coverage/
+*.log
+.npm-cache/
+test-results/
+playwright-report/
+!package-lock.json
+*.tgz
+
+# Generated screenshots and local OS/editor files
+artifacts/
+.DS_Store
+*.tsbuildinfo
+
+# Local credentials and environment overrides
+.env
+.env.*
+!.env.example
